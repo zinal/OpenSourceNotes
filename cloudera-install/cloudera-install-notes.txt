@@ -93,3 +93,11 @@ yum install cloudera-manager-daemons cloudera-manager-agent cloudera-manager-ser
 
 See also https://github.com/zinal/OpenSourceNotes/tree/master/postgresql-services
 
+
+** 8. Database and user creation
+
+su - postgres
+psql -h localhost -U admin -d postgres -f cloudera-roles.sql
+psql -h localhost -U admin -d postgres -f cloudera-databases.sql
+psql -h localhost -U admin -d postgres -f cloudera-customize.sql
+
