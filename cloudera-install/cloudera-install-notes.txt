@@ -1,0 +1,7 @@
+1. Pre-requisites
+
+RHEL 7.x, min 5 nodes
+Subscription available
+
+2. Passwordless SSH setup between the nodes
+
