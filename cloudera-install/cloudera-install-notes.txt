@@ -101,3 +101,4 @@ psql -h localhost -U admin -d postgres -f cloudera-roles.sql
 psql -h localhost -U admin -d postgres -f cloudera-databases.sql
 psql -h localhost -U admin -d postgres -f cloudera-customize.sql
 
+sudo /opt/cloudera/cm/schema/scm_prepare_database.sh -P 25432 postgresql scm scm 'P@ssw0rd'
