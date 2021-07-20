@@ -2,14 +2,20 @@
 
 https://www.cybertec-postgresql.com/en/patroni-setting-up-a-highly-available-postgresql-cluster/
 
+yum install -y patroni python36-urllib3 patroni-etcd
+
 wget https://raw.githubusercontent.com/zalando/patroni/master/postgres0.yml
 
 for x in 1 2 3; do ssh pgdemo"$x" firewall-cmd --add-port={5432,8008,7000,25432}/tcp --permanent; done
 for x in 1 2 3; do ssh pgdemo"$x" firewall-cmd --reload; done
 
+(For debug - run manually as show below)
+
 patroni pgdemo1.yaml > log_pgdemo1.log 2>&1 &
 patroni pgdemo2.yaml > log_pgdemo2.log 2>&1 &
 patroni pgdemo3.yaml > log_pgdemo3.log 2>&1 &
+
+(For production - add patroni.service for systemd)
 
 patronictl -d etcd://127.0.0.1:2379 list pgdemo
 
@@ -17,6 +23,9 @@ for x in 1 2 3; do ssh pgdemo"$x" setsebool -P haproxy_connect_any 1; done
 
 for x in 1 2 3; do ssh pgdemo"$x" systemctl enable haproxy; done
 for x in 1 2 3; do ssh pgdemo"$x" systemctl start haproxy; done
+
+
+****** PostgreSQL cluster checks
 
 psql -p 25432 -h localhost -U admin -d template1
 > create user pushkinn with encrypted password 'P@ssw0rd';
@@ -38,4 +47,3 @@ FROM mx, x1m;
 WITH mx AS (SELECT COALESCE(MAX(a), 0) AS ma FROM tab1)
 UPDATE tab1 SET b = md5(random()::text)
 FROM mx WHERE a = 1 + CAST(random() * mx.ma AS INTEGER);
-

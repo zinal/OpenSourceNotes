@@ -1,7 +1,95 @@
-1. Pre-requisites
+Cloudera CDP 7 installation notes
+
+
+** 1. Pre-requisites
 
 RHEL 7.x, min 5 nodes
 Subscription available
 
-2. Passwordless SSH setup between the nodes
+yum install -y policycoreutils-python
+yum install -y screen mc
+
+
+** 2. Passwordless SSH setup between the nodes
+(a) Proper hostnames
+(b) /etc/hosts and/or DNS
+
+
+** 3. Apache HTTPD installation on the master node
+
+(a) Put the repository data into /opt/cloudera/cm-repo
+(b) semanage fcontext -a -t httpd_sys_content_t "/opt/cloudera/cm-repo"
+    restorecon -R -v "/opt/cloudera/cm-repo"
+(c) # cat /etc/httpd/conf.d/cm-repo.conf 
+Alias "/repos/cm7" "/opt/cloudera/cm-repo"
+
+<Directory "/opt/cloudera/cm-repo">
+    Options Indexes MultiViews FollowSymlinks
+    AllowOverride None
+    Require all granted
+</Directory>
+
+(d) systemctl enable httpd
+    systemctl start httpd
+
+
+** 4. Cloudera Manager Repository
+
+cat /etc/yum.repos.d/cloudera-manager.repo 
+[cloudera-manager]
+name=Cloudera Manager 7.3.1
+baseurl=http://cldrmngr/repos/cm7/7.3.1/redhat7ppc/yum
+gpgkey=http://cldrmngr/repos/cm7/7.3.1/redhat7ppc/yum/RPM-GPG-KEY-cloudera
+gpgcheck=0
+enabled=1
+
+
+** 5. Cloudera pre-requisites
+(a) Disable the firewall
+(b) SELinux to permissive
+   setenforce 0
+   vi /etc/selinux/config
+(c) ALL hosts: systemctl status chronyd
+(d) CM host: yum install java-1.8.0-openjdk-devel
+(e) ALL hosts: yum install -y java-11-openjdk-devel
+
+
+** 6. CM server packages install
+
+yum install cloudera-manager-daemons cloudera-manager-agent cloudera-manager-server
+
+
+** 7. PostgreSQL + Patroni 3-node cluster setup
+
+(a) Download etcd from https://github.com/etcd-io/etcd/releases/
+    Unpack and copy binaries to /usr/local/bin
+
+(b) groupadd -g 961 --system etcd
+    useradd -u 961 -s /sbin/nologin --system -g etcd etcd
+    mkdir -p /var/lib/etcd
+    chown -R etcd:etcd /var/lib/etcd
+
+(c) Create /etc/systemd/system/etcd.service
+    systemctl enable etcd
+    systemctl start etcd
+    etcdctl --endpoints=127.0.0.1:9379 member list
+
+(d) yum install -y patroni python36-urllib3 patroni-etcd
+
+(e) Create configuration files
+    wget https://raw.githubusercontent.com/zalando/patroni/master/postgres0.yml
+
+(f) Create /etc/systemd/system/patroni.service
+    https://github.com/zalando/patroni/blob/master/extras/startup-scripts/patroni.service
+    systemctl enable patroni
+    systemctl start patroni
+    patronictl -d etcd://127.0.0.1:9379 list pgcldr
+
+(g) yum install -y haproxy
+    Create /etc/haproxy/haproxy.cfg
+    setsebool -P haproxy_connect_any 1
+    systemctl enable haproxy
+    systemctl start haproxy
+
+See also https://github.com/zinal/OpenSourceNotes/tree/master/postgresql-services
 

@@ -10,8 +10,8 @@ cd /usr/local/etcd/
 ./etcd --version
 ./etcdctl version
 
-for x in 1 2 3; do ssh pgdemo"$x" groupadd --system etcd; done
-for x in 1 2 3; do ssh pgdemo"$x" useradd -s /sbin/nologin --system -g etcd etcd; done
+for x in 1 2 3; do ssh pgdemo"$x" groupadd -g 961 --system etcd; done
+for x in 1 2 3; do ssh pgdemo"$x" useradd -u 961 -s /sbin/nologin --system -g etcd etcd; done
 
 for x in 1 2 3; do ssh pgdemo"$x" mkdir -p /var/lib/etcd/; done
 for x in 1 2 3; do ssh pgdemo"$x" mkdir /etc/etcd; done
@@ -56,5 +56,6 @@ for x in 1 2 3; do bash -c "ssh pgdemo$x systemctl start etcd &"; done
 for x in 1 2 3; do bash -c "ssh pgdemo$x systemctl stop etcd &"; done
 
 etcdctl member list
-
+etcdctl --endpoints=127.0.0.1:9379 member list
+etcdctl --endpoints=127.0.0.1:9379 get / --prefix
 
