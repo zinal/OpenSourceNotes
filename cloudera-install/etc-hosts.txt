@@ -1,0 +1,8 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+172.19.12.61 cldrmngr.ibmcc.ru cldrmngr
+172.19.12.63 cldr63.ibmcc.ru cldr63
+172.19.12.64 cldr64.ibmcc.ru cldr64
+172.19.12.65 cldr65.ibmcc.ru cldr65
+172.19.12.66 cldr66.ibmcc.ru cldr66

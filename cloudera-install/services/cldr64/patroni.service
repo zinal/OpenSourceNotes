@@ -1,0 +1,19 @@
+[Unit]
+Description=patroni service
+Documentation=https://github.com/zalando/patroni/blob/master/extras/startup-scripts/patroni.service
+Requires=etcd.service
+After=etcd.service syslog.target network.target
+
+[Service]
+Type=simple
+User=postgres
+Group=postgres
+WorkingDirectory=/Config/patroni
+ExecStart=/usr/bin/patroni patroni-cldr64.yaml
+ExecReload=/usr/bin/kill -s HUP $MAINPID
+KillMode=process
+TimeoutSec=30
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

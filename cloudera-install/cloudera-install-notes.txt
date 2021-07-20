@@ -102,3 +102,15 @@ psql -h localhost -U admin -d postgres -f cloudera-databases.sql
 psql -h localhost -U admin -d postgres -f cloudera-customize.sql
 
 sudo /opt/cloudera/cm/schema/scm_prepare_database.sh -P 25432 postgresql scm scm 'P@ssw0rd'
+
+
+** 9. Installation wizard
+
+systemctl enable cloudera-scm-server
+systemctl start cloudera-scm-server
+tail -f /var/log/cloudera-scm-server/cloudera-scm-server.log
+  (until "Started Jetty server" appears)
+
+Enable AutoTLS
+  (will need ssh key to access the servers)
+

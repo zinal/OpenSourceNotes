@@ -1,0 +1,24 @@
+[Unit]
+Description=etcd service
+Documentation=https://github.com/etcd-io/etcd
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=notify
+User=etcd
+ExecStart=/usr/local/bin/etcd \
+  --name cldr64 \
+  --auto-compaction-retention=1 \
+  --enable-v2=true \
+  --data-dir=/var/lib/etcd \
+  --initial-advertise-peer-urls http://172.19.12.64:9380 \
+  --listen-peer-urls http://172.19.12.64:9380 \
+  --listen-client-urls http://172.19.12.64:9379,http://127.0.0.1:9379 \
+  --advertise-client-urls http://172.19.12.64:9379 \
+  --initial-cluster-token etcd-pgcldr-0 \
+  --initial-cluster cldrmngr=http://cldrmngr:9380,cldr63=http://cldr63:9380,cldr64=http://cldr64:9380 \
+  --initial-cluster-state new
+
+[Install]
+WantedBy=multi-user.target
