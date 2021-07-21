@@ -17,13 +17,13 @@ yum install -y screen mc
 
 ** 3. Apache HTTPD installation on the master node
 
-(a) Put the repository data into /opt/cloudera/cm-repo
-(b) semanage fcontext -a -t httpd_sys_content_t "/opt/cloudera/cm-repo"
-    restorecon -R -v "/opt/cloudera/cm-repo"
+(a) Put the repository data into /opt/cloudera/www-repos/{cm7,cdh7}
+(b) semanage fcontext -a -t httpd_sys_content_t "/opt/cloudera/www-repos"
+    restorecon -R -v "/opt/cloudera/www-repos"
 (c) # cat /etc/httpd/conf.d/cm-repo.conf 
-Alias "/repos/cm7" "/opt/cloudera/cm-repo"
+Alias "/repos" "/opt/cloudera/www-repos"
 
-<Directory "/opt/cloudera/cm-repo">
+<Directory "/opt/cloudera/www-repos">
     Options Indexes MultiViews FollowSymlinks
     AllowOverride None
     Require all granted
@@ -54,12 +54,7 @@ enabled=1
 (e) ALL hosts: yum install -y java-11-openjdk-devel
 
 
-** 6. CM server packages install
-
-yum install cloudera-manager-daemons cloudera-manager-agent cloudera-manager-server
-
-
-** 7. PostgreSQL + Patroni 3-node cluster setup
+** 6. PostgreSQL + Patroni 3-node cluster setup
 
 (a) Download etcd from https://github.com/etcd-io/etcd/releases/
     Unpack and copy binaries to /usr/local/bin
@@ -94,6 +89,13 @@ yum install cloudera-manager-daemons cloudera-manager-agent cloudera-manager-ser
 See also https://github.com/zinal/OpenSourceNotes/tree/master/postgresql-services
 
 
+** 7. CM packages install
+
+yum install cloudera-manager-daemons cloudera-manager-agent cloudera-manager-server
+
+yum install cloudera-manager-agent
+
+
 ** 8. Database and user creation
 
 su - postgres
@@ -101,7 +103,7 @@ psql -h localhost -U admin -d postgres -f cloudera-roles.sql
 psql -h localhost -U admin -d postgres -f cloudera-databases.sql
 psql -h localhost -U admin -d postgres -f cloudera-customize.sql
 
-sudo /opt/cloudera/cm/schema/scm_prepare_database.sh -P 25432 postgresql scm scm 'P@ssw0rd'
+sudo /opt/cloudera/cm/schema/scm_prepare_database.sh -P 25432 -h 127.0.0.1 postgresql scm scm 'P@ssw0rd'
 
 
 ** 9. Installation wizard
@@ -111,6 +113,26 @@ systemctl start cloudera-scm-server
 tail -f /var/log/cloudera-scm-server/cloudera-scm-server.log
   (until "Started Jetty server" appears)
 
+http://cldrmngr:7180
+
 Enable AutoTLS
   (will need ssh key to access the servers)
 
+Configure parsels
+  http://cldrmngr/repos/cdh7/7.1.6.0/parcels/
+
+Cluster -> Add
+  cldrmngr.ibmcc.ru, cldr63.ibmcc.ru, cldr64.ibmcc.ru, cldr65.ibmcc.ru, cldr66.ibmcc.ru
+
+Adding services one-by-one, starting from ZooKeeper, HDFS and YARN.
+
+
+** 10. Mumbo-Jumbo
+
+# Missing HDFS object for running YARN history server
+sudo -u hdfs hdfs dfs -mkdir /user
+sudo -u hdfs hdfs dfs -chown mapred:mapred /user
+
+# Manually initialize Hive metastore
+psql -p 25432 -h localhost -U hive -d metastore
+\i /opt/cloudera/cm-agent/service/hive/ddl/hive-schema-0.10.0.postgres.sql
