@@ -58,9 +58,9 @@ bootstrap:
         synchronous_commit: "on"
         synchronous_standby_names: "*"
         wal_log_hints: "on"
+        max_connections: 1000
 #        wal_level: hot_standby
 #        hot_standby: "on"
-#        max_connections: 100
 #        max_worker_processes: 8
 #        wal_keep_segments: 8
 #        max_wal_senders: 10
