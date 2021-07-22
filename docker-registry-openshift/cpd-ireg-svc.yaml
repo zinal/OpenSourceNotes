@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cpd-ireg
+  namespace: cpd-ireg
+  annotations:
+      service.alpha.openshift.io/serving-cert-secret-name: cpd-ireg
+spec:
+  selector:
+    app: cpd-ireg
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 5000
+
