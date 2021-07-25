@@ -1,3 +1,7 @@
+*** Manual certification creation and registry setup
+
+** Certificate + CA
+
 mkdir image-ca
 cd image-ca
 
@@ -49,3 +53,28 @@ $ openssl x509 -req -in svc-imagereg.csr -CA myca.csr -CAkey myca.key -CAcreates
 $ cat svc-imagereg.cer myca.csr >svc-imagereg-bundle.cer
 
 cd ..
+
+
+** Docker Registry
+
+sudo mkdir /export/docker-registry
+sudo mkdir /export/docker-registry/authz
+sudo mkdir /export/docker-registry/data
+sudo cp image-ca/svc-imagereg-bundle.cer /export/docker-registry/authz/domain.cer
+sudo cp image-ca/svc-imagereg.key /export/docker-registry/authz/domain.key
+htpasswd -Bbn reguser regpassword | sudo tee /export/docker-registry/authz/htpasswd
+
+sudo semanage fcontext -a -t container_file_t "'/export/docker-registry(/.*)?'"
+sudo restorecon -Rv /export/docker-registry
+
+cd /export/docker-registry
+sudo podman run -d -p 5000:5000 --restart=always --name registry \
+  -v "$(pwd)"/authz:/authz \
+  -v "$(pwd)"/data:/var/lib/registry \
+  -e "REGISTRY_AUTH=htpasswd" \
+  -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
+  -e REGISTRY_AUTH_HTPASSWD_PATH=/authz/htpasswd \
+  -e REGISTRY_HTTP_TLS_CERTIFICATE=/authz/domain.cer \
+  -e REGISTRY_HTTP_TLS_KEY=/authz/domain.key \
+  -e REGISTRY_HTTP_SECRET=oox1aibai3ea8eemeaNg8iev7INgah \
+  registry:2
