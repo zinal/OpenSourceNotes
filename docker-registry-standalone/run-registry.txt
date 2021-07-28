@@ -7,8 +7,9 @@ sudo cp image-ca/svc-imagereg-bundle.cer /export/docker-registry/authz/domain.ce
 sudo cp image-ca/svc-imagereg.key /export/docker-registry/authz/domain.key
 htpasswd -Bbn reguser regpassword | sudo tee /export/docker-registry/authz/htpasswd
 
-sudo semanage fcontext -a -t container_file_t "'/export/docker-registry(/.*)?'"
-sudo restorecon -Rv /export/docker-registry
+??? sudo semanage fcontext -a -t container_file_t "'/export/docker-registry(/.*)?'"
+??? sudo restorecon -Rv /export/docker-registry
+sudo chcon -Rt svirt_sandbox_file_t /export/docker-registry
 
 cd /export/docker-registry
 sudo podman run -d -p 5000:5000 --restart=always --name registry \
