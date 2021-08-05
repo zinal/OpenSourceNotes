@@ -78,7 +78,10 @@ enabled=1
     https://github.com/zalando/patroni/blob/master/extras/startup-scripts/patroni.service
     systemctl enable patroni
     systemctl start patroni
+
     patronictl -d etcd://127.0.0.1:9379 list pgcldr
+    patronictl -d etcd://127.0.0.1:9379 show-config pgcldr
+    patronictl -d etcd://127.0.0.1:9379 -c pgcldr.yml edit-config pgcldr
 
 (g) yum install -y haproxy
     Create /etc/haproxy/haproxy.cfg
@@ -134,5 +137,12 @@ sudo -u hdfs hdfs dfs -mkdir /user
 sudo -u hdfs hdfs dfs -chown mapred:mapred /user
 
 # Manually initialize Hive metastore
+Web GUI -> Create Hive Metastore Tables
+
 psql -p 25432 -h localhost -U hive -d metastore
-\i /opt/cloudera/cm-agent/service/hive/ddl/hive-schema-0.10.0.postgres.sql
+
+
+** 11. Post-Kerberos
+
+update HDFS supergroup (or create the supergroup user)
+kinit cldr-hdfs@WIND.IBMCC.LOCAL

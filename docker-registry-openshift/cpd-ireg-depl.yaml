@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpd-ireg
+  namespace: cpd-ireg
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cpd-ireg
+  template:
+    metadata:
+      labels:
+        app: cpd-ireg
+    spec:
+      containers:
+      - name: ireg
+        image: registry:2
+        imagePullPolicy: "IfNotPresent"
+        ports:
+        - containerPort: 5000
+        env:
+        - name: REGISTRY_AUTH
+          value: "htpasswd"
+        - name: REGISTRY_AUTH_HTPASSWD_REALM
+          value: "Registry Realm"
+        - name: REGISTRY_AUTH_HTPASSWD_PATH
+          value: "/etc/htpasswd/htpasswd"
+        - name: REGISTRY_HTTP_TLS_CERTIFICATE
+          value: "/etc/certz/tls.crt"
+        - name: REGISTRY_HTTP_TLS_KEY
+          value: "/etc/certz/tls.key"
+        - name: REGISTRY_HTTP_SECRET
+          value: "Pagosyan Gagyk Spartakovich"
+        volumeMounts:
+        - mountPath: /var/lib/registry
+          name: cpd-ireg-data
+        - mountPath: /etc/htpasswd
+          name: cpd-ireg-passwd-vol
+        - mountPath: /etc/certz
+          name: cpd-ireg-vol
+      volumes:
+      - name: cpd-ireg-data
+        persistentVolumeClaim:
+          claimName: cpd-ireg-pvc
+      - name: cpd-ireg-vol
+        secret:
+          secretName: cpd-ireg
+      - name: cpd-ireg-passwd-vol
+        secret:
+          secretName: cpd-ireg-htpasswd

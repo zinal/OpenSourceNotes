@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cpd-ireg-check
+spec:
+  containers:
+    - name: cont0
+      image: busybox
+      command: [ "/bin/sh", "-c", "ls -l /etc/secret-volume/*" ]
+      volumeMounts:
+          # name must match the volume name below
+          - name: secret-volume
+            mountPath: /etc/secret-volume
+            readOnly: true
+  volumes:
+    - name: secret-volume
+      secret:
+        secretName: cpd-ireg
+  restartPolicy: Never
+

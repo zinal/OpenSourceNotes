@@ -1,0 +1,4 @@
+find . -type d -name _uploads | while read dn; do xc=`find "$dn" -type f | wc -l`; if [ ! "$xc" == "0" ]; then echo "$dn"; fi; done
+
+find . -type d -name _uploads | while read dn; do xc=`find "$dn" -type f | wc -l`; if [ ! "$xc" == "0" ]; then rm -rf "$dn"/*; fi; done
+
