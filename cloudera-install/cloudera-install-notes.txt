@@ -9,13 +9,12 @@ Subscription available
 yum install -y policycoreutils-python
 yum install -y screen mc
 
-
-** 2. Passwordless SSH setup between the nodes
+Passwordless SSH setup between the nodes
 (a) Proper hostnames
 (b) /etc/hosts and/or DNS
 
 
-** 3. Apache HTTPD installation on the master node
+** 2. Apache HTTPD installation on the master node
 
 (a) Put the repository data into /opt/cloudera/www-repos/{cm7,cdh7}
 (b) semanage fcontext -a -t httpd_sys_content_t "/opt/cloudera/www-repos"
@@ -33,7 +32,7 @@ Alias "/repos" "/opt/cloudera/www-repos"
     systemctl start httpd
 
 
-** 4. Cloudera Manager Repository
+** 3. Cloudera Manager Repository
 
 cat /etc/yum.repos.d/cloudera-manager.repo 
 [cloudera-manager]
@@ -44,7 +43,7 @@ gpgcheck=0
 enabled=1
 
 
-** 5. Cloudera pre-requisites
+** 4. Cloudera pre-requisites
 (a) Disable the firewall
 (b) SELinux to permissive
    setenforce 0
@@ -54,7 +53,7 @@ enabled=1
 (e) ALL hosts: yum install -y java-11-openjdk-devel
 
 
-** 6. PostgreSQL + Patroni 3-node cluster setup
+** 5. PostgreSQL + Patroni 3-node cluster setup
 
 (a) Download etcd from https://github.com/etcd-io/etcd/releases/
     Unpack and copy binaries to /usr/local/bin
@@ -92,14 +91,14 @@ enabled=1
 See also https://github.com/zinal/OpenSourceNotes/tree/master/postgresql-services
 
 
-** 7. CM packages install
+** 6. CM packages install
 
 yum install cloudera-manager-daemons cloudera-manager-agent cloudera-manager-server
 
 yum install cloudera-manager-agent
 
 
-** 8. Database and user creation
+** 7. Database and user creation
 
 su - postgres
 psql -h localhost -U admin -d postgres -f cloudera-roles.sql
@@ -109,7 +108,7 @@ psql -h localhost -U admin -d postgres -f cloudera-customize.sql
 sudo /opt/cloudera/cm/schema/scm_prepare_database.sh -P 25432 -h 127.0.0.1 postgresql scm scm 'P@ssw0rd'
 
 
-** 9. Installation wizard
+** 8. Installation wizard
 
 systemctl enable cloudera-scm-server
 systemctl start cloudera-scm-server
@@ -130,7 +129,7 @@ Cluster -> Add
 Adding services one-by-one, starting from ZooKeeper, HDFS and YARN.
 
 
-** 10. Mumbo-Jumbo
+** 9. Mumbo-Jumbo
 
 # Missing HDFS object for running YARN history server
 sudo -u hdfs hdfs dfs -mkdir /user
@@ -142,7 +141,15 @@ Web GUI -> Create Hive Metastore Tables
 psql -p 25432 -h localhost -U hive -d metastore
 
 
-** 11. Post-Kerberos
+** 10. Post-Kerberos
 
 update HDFS supergroup (or create the supergroup user)
 kinit cldr-hdfs@WIND.IBMCC.LOCAL
+
+** 11. Fixes
+
+(a) Random Hive on Tez failing queries
+Looks like this: https://issues.apache.org/jira/browse/TEZ-4057
+CDP 7.1.6 comes with Tez 0.9.1
+
+usermod -a -G hive yarn
