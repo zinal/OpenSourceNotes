@@ -9,6 +9,9 @@ Subscription available
 yum install -y policycoreutils-python
 yum install -y screen mc
 
+yum install -y httpd
+  (on the repository host)
+
 Passwordless SSH setup between the nodes
 (a) Proper hostnames
 (b) /etc/hosts and/or DNS

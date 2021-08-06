@@ -1,0 +1,54 @@
+Db2 Federation connect to Hive with SSL and Kerberos
+
+(a) Prepare Kerberos keytab file
+
+ktpass /princ zinal@WIND.IBMCC.LOCAL /pass *** /ptype KRB5_NT_PRINCIPAL /out zinal.keytab
+  (^^^ on Windows)
+
+oc cp zinal.keytab c-db2wh-1627300681559617-db2u-0:/tmp/
+
+(b) Prepare CA certificate file
+
+less /etc/hive/conf.cloudera.hive_on_tez/ssl-client.xml
+
+keytool -list -keystore /var/lib/cloudera-scm-agent/agent-cert/cm-auto-global_truststore.jks
+
+keytool -export -alias cmrootca-0 \
+  -keystore /var/lib/cloudera-scm-agent/agent-cert/cm-auto-global_truststore.jks \
+  -rfc -file hiveca.cer
+
+openssl x509 -in hiveca.cer -text
+  (^^^ view certificate information)
+
+openssl pkcs12 -export -nokeys -in hiveca.cer -out hiveca.p12
+  (^^^ record the password to be used in SSL_KEYSTOREPASSWORD below)
+
+oc cp hiveca.p12 c-db2wh-1627300681559617-db2u-0:/tmp/
+
+(c) Configure Db2 Warehouse instance
+
+oc rsh c-db2wh-1627300681559617-db2u-0
+sudo mkdir /mnt/bludata0/db2/misc
+sudo mv /tmp/zinal.keytab /mnt/bludata0/db2/misc/
+sudo mv /tmp/hiveca.p12 /mnt/bludata0/db2/misc/
+sudo chown -R db2inst1:db2iadm1 /mnt/bludata0/db2/misc
+sudo chmod 444 /mnt/bludata0/db2/misc/zinal.keytab
+sudo chmod 444 /mnt/bludata0/db2/misc/hiveca.p12
+
+(d) Setup wrapper, server and default user mapping
+
+CREATE WRAPPER odbc LIBRARY 'libdb2rcodbc.so' OPTIONS(
+  DB2_FENCED 'Y', 
+  MODULE '/mnt/blumeta0/home/db2inst1/sqllib/federation/odbc/lib/libodbc.so');
+
+CREATE SERVER hive1 TYPE hive VERSION 6.0 WRAPPER odbc 
+OPTIONS(HOST 'cldr66.ibmcc.ru', PORT '10000', DBNAME 'tpcds_10t', 
+  SERVER_PRINCIPAL_NAME 'hive/cldr66.ibmcc.ru@WIND.IBMCC.LOCAL',
+  SSL_KEYSTORE '/mnt/bludata0/db2/misc/hiveca.p12',
+  SSL_KEYSTOREPASSWORD 'passw0rd', 
+  PUSHDOWN 'Y');
+
+CREATE USER MAPPING FOR PUBLIC SERVER hive1 OPTIONS (
+  REMOTE_AUTHID 'zinal@WIND.IBMCC.LOCAL',
+  CLIENT_PRINCIPAL_NAME 'zinal@WIND.IBMCC.LOCAL',
+  KERBEROS_KEYTAB '/mnt/bludata0/db2/misc/zinal.keytab');
