@@ -1,11 +1,13 @@
 Db2 Federation connect to Hive with SSL and Kerberos
 
+
 (a) Prepare Kerberos keytab file
 
 ktpass /princ zinal@WIND.IBMCC.LOCAL /pass *** /ptype KRB5_NT_PRINCIPAL /out zinal.keytab
   (^^^ on Windows)
 
 oc cp zinal.keytab c-db2wh-1627300681559617-db2u-0:/tmp/
+
 
 (b) Prepare CA certificate file
 
@@ -25,6 +27,7 @@ openssl pkcs12 -export -nokeys -in hiveca.cer -out hiveca.p12
 
 oc cp hiveca.p12 c-db2wh-1627300681559617-db2u-0:/tmp/
 
+
 (c) Configure Db2 Warehouse instance
 
 oc rsh c-db2wh-1627300681559617-db2u-0
@@ -34,6 +37,7 @@ sudo mv /tmp/hiveca.p12 /mnt/bludata0/db2/misc/
 sudo chown -R db2inst1:db2iadm1 /mnt/bludata0/db2/misc
 sudo chmod 444 /mnt/bludata0/db2/misc/zinal.keytab
 sudo chmod 444 /mnt/bludata0/db2/misc/hiveca.p12
+
 
 (d) Setup wrapper, server and default user mapping
 
@@ -52,3 +56,10 @@ CREATE USER MAPPING FOR PUBLIC SERVER hive1 OPTIONS (
   REMOTE_AUTHID 'zinal@WIND.IBMCC.LOCAL',
   CLIENT_PRINCIPAL_NAME 'zinal@WIND.IBMCC.LOCAL',
   KERBEROS_KEYTAB '/mnt/bludata0/db2/misc/zinal.keytab');
+
+
+(e) Create Db2 nicknames for Hive tables
+
+CREATE SCHEMA tpcds_10t;
+
+CREATE NICKNAME tpcds_10t.store_sales FOR hive1."tpcds_10t"."store_sales";

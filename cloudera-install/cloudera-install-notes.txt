@@ -72,6 +72,8 @@ enabled=1
     etcdctl --endpoints=127.0.0.1:9379 member list
 
 (d) yum install -y patroni python36-urllib3 patroni-etcd
+    yum install -y advance-toolchain-at10.0-runtime ### on power
+    yum install -y python-psycopg2
 
 (e) Create configuration files
     wget https://raw.githubusercontent.com/zalando/patroni/master/postgres0.yml
