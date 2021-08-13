@@ -47,3 +47,7 @@ FROM mx, x1m;
 WITH mx AS (SELECT COALESCE(MAX(a), 0) AS ma FROM tab1)
 UPDATE tab1 SET b = md5(random()::text)
 FROM mx WHERE a = 1 + CAST(random() * mx.ma AS INTEGER);
+
+****** If log went too far ...
+
+patronictl -d etcd://127.0.0.1:9379 reinit pgcldr cldrmngr
