@@ -7,6 +7,7 @@ CREATE ROLE das LOGIN PASSWORD 'P@ssw0rd';
 CREATE ROLE schemaregistry LOGIN PASSWORD 'P@ssw0rd';
 CREATE ROLE smm LOGIN PASSWORD 'P@ssw0rd';
 CREATE ROLE actmon LOGIN PASSWORD 'P@ssw0rd';
+CREATE ROLE repman LOGIN PASSWORD 'P@ssw0rd';
 CREATE ROLE navaud LOGIN PASSWORD 'P@ssw0rd';
 CREATE ROLE navmeta LOGIN PASSWORD 'P@ssw0rd';
 
@@ -19,6 +20,7 @@ GRANT das TO admin;
 GRANT schemaregistry TO admin;
 GRANT smm TO admin;
 GRANT actmon TO admin;
+GRANT repman TO admin;
 GRANT navaud TO admin;
 GRANT navmeta TO admin;
 

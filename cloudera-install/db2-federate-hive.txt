@@ -63,3 +63,5 @@ CREATE USER MAPPING FOR PUBLIC SERVER hive1 OPTIONS (
 CREATE SCHEMA tpcds_10t;
 
 CREATE NICKNAME tpcds_10t.store_sales FOR hive1."tpcds_10t"."store_sales";
+
+-- XxjOODLZi3H5
