@@ -1,0 +1,35 @@
+$TTL 86400
+@       IN SOA  masterdns.ccru.ibm.com.     root.ccru.ibm.com. (
+2018101201    ; serial
+3600    ; refresh
+1800    ; retry
+604800    ; expire
+86400 )  ; minimum
+; Name server's
+@       IN      NS      masterdns.ccru.ibm.com.
+; Name server hostname to IP resolve.
+@       IN      A       192.168.122.1
+; Hosts in this Domain
+masterdns       IN      A       192.168.122.1
+toster          IN      A       172.17.206.147
+master          IN      A       192.168.122.1
+master          IN      A       192.168.101.1
+master          IN      A       192.168.102.1
+win1c           IN      A       192.168.122.65
+drac1           IN      A       192.168.101.11
+drac2           IN      A       192.168.101.12
+drac1-priv      IN      A       192.168.102.11
+drac2-priv      IN      A       192.168.102.12
+drac1-vip       IN      A       192.168.101.31
+drac2-vip       IN      A       192.168.101.32
+drac-scan       IN      A       192.168.101.41
+drac-scan       IN      A       192.168.101.42
+drac-scan       IN      A       192.168.101.43
+cdc1            IN      A       192.168.101.21
+ps01            IN      A       192.168.101.51
+ps02            IN      A       192.168.101.52
+ps01-priv       IN      A       192.168.102.51
+ps02-priv       IN      A       192.168.102.52
+iseng01         IN      A       192.168.101.19
+kafko           IN      A       192.168.122.115
+durko           IN      A       192.168.122.204

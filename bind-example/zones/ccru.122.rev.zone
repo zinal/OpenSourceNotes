@@ -1,0 +1,20 @@
+$TTL 86400
+@       IN SOA  masterdns.ccru.ibm.com. root.ccru.ibm.com. (
+2018101201      ; serial
+3600      ; refresh
+1800      ; retry
+604800      ; expire
+86400 )    ; minimum
+; Name server's
+@       IN      NS      masterdns.ccru.ibm.com.
+@       IN      PTR     ccru.ibm.com.
+; Name server hostname to IP resolve.
+masterdns       IN      A       192.168.122.1
+;Hosts in Domain 
+1              IN      PTR     master.ccru.ibm.com.
+11             IN      PTR     drac1.ccru.ibm.com.
+12             IN      PTR     drac2.ccru.ibm.com.
+21             IN      PTR     cdc1.ccru.ibm.com.
+65             IN      PTR     win1c.ccru.ibm.com.
+115            IN      PTR     kafko.ccru.ibm.com.
+204            IN      PTR     durko.ccru.ibm.com.
