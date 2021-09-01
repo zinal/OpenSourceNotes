@@ -82,10 +82,14 @@ enabled=1
     https://github.com/zalando/patroni/blob/master/extras/startup-scripts/patroni.service
     systemctl enable patroni
     systemctl start patroni
+    systemctl status patroni
 
     patronictl -d etcd://127.0.0.1:9379 list pgcldr
     patronictl -d etcd://127.0.0.1:9379 show-config pgcldr
+
     patronictl -d etcd://127.0.0.1:9379 -c pgcldr.yml edit-config pgcldr
+
+    patronictl -d etcd://127.0.0.1:9379 reinit pgcldr cldr64
 
 (g) yum install -y haproxy
     Create /etc/haproxy/haproxy.cfg

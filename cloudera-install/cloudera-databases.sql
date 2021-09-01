@@ -13,3 +13,6 @@ CREATE DATABASE navmeta OWNER navmeta ENCODING 'UTF8';
 
 CREATE DATABASE ranger OWNER rangeradmin ENCODING 'UTF8';
 GRANT ALL PRIVILEGES ON DATABASE ranger TO rangeradmin;
+
+ALTER DATABASE metastore SET standard_conforming_strings=off;
+ALTER DATABASE oozie SET standard_conforming_strings=off;
