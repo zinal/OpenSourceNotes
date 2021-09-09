@@ -9,7 +9,7 @@ openssl rsa -in myca.key -pubout -out myca.pub
 openssl genrsa -out svc-imagereg.key 4096
 openssl rsa -in svc-imagereg.key -pubout -out svc-imagereg.pub
 
-$ openssl req -new -x509 -key myca.key -out myca.csr
+$ openssl req -new -x509 -key myca.key -out myca.csr -days 5120
 You are about to be asked to enter information that will be incorporated
 into your certificate request.
 What you are about to enter is what is called a Distinguished Name or a DN.
@@ -49,5 +49,8 @@ An optional company name []:
 $ openssl x509 -req -in svc-imagereg.csr -CA myca.csr -CAkey myca.key -CAcreateserial -out svc-imagereg.cer -days 5120
 
 $ cat svc-imagereg.cer myca.csr >svc-imagereg-bundle.cer
+
+$ openssl x509 -in svc-imagereg.cer -text | less
+$ openssl x509 -in myca.csr -text | less
 
 cd ..
