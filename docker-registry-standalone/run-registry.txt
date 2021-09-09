@@ -27,3 +27,4 @@ sudo podman run -d -p 5000:5000 --restart=always --name registry \
 *** For OpenShift, see the steps below to configure the certificate trust:
 *** https://docs.openshift.com/container-platform/4.6/networking/configuring-a-custom-pki.html
 *** user-ca-bundle.yaml + oc edit proxy/cluster
+*** oc get machineconfigpool
