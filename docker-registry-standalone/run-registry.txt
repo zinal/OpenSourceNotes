@@ -22,3 +22,8 @@ sudo podman run -d -p 5000:5000 --restart=always --name registry \
   -e REGISTRY_HTTP_TLS_KEY=/authz/domain.key \
   -e REGISTRY_HTTP_SECRET=oox1aibai3ea8eemeaNg8iev7INgah \
   registry:2
+
+
+*** For OpenShift, see the steps below to configure the certificate trust:
+*** https://docs.openshift.com/container-platform/4.6/networking/configuring-a-custom-pki.html
+*** user-ca-bundle.yaml + oc edit proxy/cluster
