@@ -1,0 +1,15 @@
+%pool: pool=system usage=metadataOnly layoutMap=cluster allowWriteAffinity=no
+
+%pool: pool=user usage=dataOnly layoutMap=cluster allowWriteAffinity=no
+
+%nsd: nsd=META01 device=/dev/sdg usage=metadataOnly pool=system servers=ipas-vm-0-106,ipas-vm-0-107,ipas-vm-0-108
+
+%nsd: nsd=DATA01 device=/dev/sdc usage=dataOnly pool=user servers=ipas-vm-0-106,ipas-vm-0-107,ipas-vm-0-108
+
+%nsd: nsd=DATA02 device=/dev/sdd usage=dataOnly pool=user servers=ipas-vm-0-106,ipas-vm-0-107,ipas-vm-0-108
+
+%nsd: nsd=DATA03 device=/dev/sde usage=dataOnly pool=user servers=ipas-vm-0-106,ipas-vm-0-107,ipas-vm-0-108
+
+%nsd: nsd=DATA04 device=/dev/sdf usage=dataOnly pool=user servers=ipas-vm-0-106,ipas-vm-0-107,ipas-vm-0-108
+
+
