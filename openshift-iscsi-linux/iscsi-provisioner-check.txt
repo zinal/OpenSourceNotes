@@ -1,0 +1,37 @@
+
+cat <<EOF |oc apply -f -
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: iscsi-pvc-0
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: iscsi-targetd-0
+  resources:
+    requests:
+      storage: 2Gi
+EOF
+
+cat <<EOF |oc apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    test: iscsi-pvc-pod
+  name: iscsi-pv-pod1
+spec:
+  containers:
+  - name: iscsi-pv-busybox
+    image: busybox
+    command: ["sleep", "60000"]
+    volumeMounts:
+    - name: iscsi-vol1
+      mountPath: /var/lib/busybox
+      readOnly: false
+  volumes:
+  - name: iscsi-vol1
+    persistentVolumeClaim:
+      claimName: iscsi-pvc-0
+EOF
+

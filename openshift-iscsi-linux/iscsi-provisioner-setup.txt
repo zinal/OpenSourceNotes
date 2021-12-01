@@ -1,0 +1,127 @@
+# Collect initiator IDs
+
+oc debug node ...
+chroot /host
+cat /etc/iscsi/initiatorname.iscsi
+***
+1 InitiatorName=iqn.1994-05.com.redhat:4923efdd999
+2 InitiatorName=iqn.1994-05.com.redhat:ba272b5aab91
+3 InitiatorName=iqn.1994-05.com.redhat:71fcc4708459
+4 InitiatorName=iqn.1994-05.com.redhat:6a5098b6e8d7
+5 InitiatorName=iqn.1994-05.com.redhat:f2a73d5e680
+6 InitiatorName=iqn.1994-05.com.redhat:68c7245fe0ee
+7 InitiatorName=iqn.1994-05.com.redhat:a4c85f4e3060
+***
+
+# Old iSCSI provisioner, docs and config from here:
+# https://github.com/kubernetes-retired/external-storage/tree/master/iscsi/targetd
+
+oc new-project iscsi-provisioner
+
+oc create sa iscsi-provisioner
+
+oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:iscsi-provisioner:iscsi-provisioner
+
+oc adm policy add-cluster-role-to-user system:persistent-volume-provisioner system:serviceaccount:iscsi-provisioner:iscsi-provisioner
+
+oc create secret generic targetd-account --from-literal=username=admin --from-literal=password=zillberstain --type=gitlab.com/basic-auth
+
+cat <<EOF |oc apply -f -
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: iscsi-provisioner-runner
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+EOF
+
+cat <<EOF |oc apply -f -
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: run-iscsi-provisioner
+subjects:
+  - kind: ServiceAccount
+    name: iscsi-provisioner
+    namespace: iscsi-provisioner
+roleRef:
+  kind: ClusterRole
+  name: iscsi-provisioner-runner
+EOF
+
+
+cat <<EOF |oc apply -f -
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: iscsi-provisioner
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: iscsi-provisioner
+    spec:
+      containers:
+        - name: iscsi-provisioner
+          imagePullPolicy: Always
+          image: quay.io/external_storage/iscsi-controller:latest
+          args:
+            - "start"
+          env:
+            - name: PROVISIONER_NAME
+              value: iscsi-targetd
+            - name: LOG_LEVEL
+              value: debug
+            - name: TARGETD_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: targetd-account
+                  key: username
+            - name: TARGETD_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: targetd-account
+                  key: password
+            - name: TARGETD_ADDRESS
+              value: 172.17.207.194
+      serviceAccount: iscsi-provisioner
+EOF
+
+
+cat <<EOF |oc apply -f -
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: iscsi-targetd-0
+provisioner: iscsi-targetd
+parameters:
+  targetPortal: 172.17.207.194:3260
+  iqn: iqn.2003-01.org.linux-iscsi.openshift:targetd
+  iscsiInterface: default
+  volumeGroup: vg-targetd/thinpool
+  fsType: xfs
+  initiators: >
+    iqn.1994-05.com.redhat:4923efdd999,
+    iqn.1994-05.com.redhat:ba272b5aab91,
+    iqn.1994-05.com.redhat:71fcc4708459,
+    iqn.1994-05.com.redhat:6a5098b6e8d7,
+    iqn.1994-05.com.redhat:f2a73d5e680,
+    iqn.1994-05.com.redhat:68c7245fe0ee,
+    iqn.1994-05.com.redhat:a4c85f4e3060
+EOF
+

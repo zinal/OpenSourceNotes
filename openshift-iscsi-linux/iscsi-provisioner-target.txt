@@ -1,0 +1,23 @@
+
+vgcreate vg-targetd /dev/sdf1
+lvcreate -L16G -T vg-targetd/thinpool
+
+vi /etc/lvm/lvm.conf
+***
+thin_pool_autoextend_threshold = 70
+thin_pool_autoextend_percent = 20
+***
+lvs -o+seg_monitor
+
+yum install -y targetd targetcli
+
+vi /etc/target/targetd.yaml
+***
+ssl: false
+user: admin
+password: zillberstain
+target_name: iqn.2003-01.org.linux-iscsi.openshift:targetd
+block_pools: [vg-targetd/thinpool]
+log_level: debug
+***
+
