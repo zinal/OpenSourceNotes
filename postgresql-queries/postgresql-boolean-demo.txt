@@ -1,0 +1,80 @@
+postgres@main:~$ createdb test1
+postgres@main:~$ psql test1
+psql (12.9 (Debian 12.9-1.pgdg100+1))
+Введите "help", чтобы получить справку.
+
+test1=# create schema booldemo;
+CREATE SCHEMA
+test1=# create table booldemo.tab1(a integer not null primary key, b boolean);
+CREATE TABLE
+test1=# insert into booldemo.tab1(a, b) values(1, true);
+INSERT 0 1
+test1=# insert into booldemo.tab1(a, b) values(2, false);
+INSERT 0 1
+test1=# insert into booldemo.tab1(a, b) values(3, true);
+INSERT 0 1
+test1=# insert into booldemo.tab1(a, b) values(4, false);
+INSERT 0 1
+test1=# select * from booldemo.tab1
+test1-# ;
+ a | b 
+---+---
+ 1 | t
+ 2 | f
+ 3 | t
+ 4 | f
+(4 строки)
+
+test1=# select count(*) from booldemo.tab1 where b=true;
+ count 
+-------
+     2
+(1 строка)
+
+test1=# select count(*) from booldemo.tab1 where b=1;
+ОШИБКА:  оператор не существует: boolean = integer
+СТРОКА 1: select count(*) from booldemo.tab1 where b=1;
+                                                    ^
+ПОДСКАЗКА:  Оператор с данными именем и типами аргументов не найден. Возможно, вам следует добавить явные приведения типов.
+test1=# select count(*) from booldemo.tab1 where b='1';
+ count 
+-------
+     2
+(1 строка)
+
+test1=# select count(*) from booldemo.tab1 where b='0';
+ count 
+-------
+     2
+(1 строка)
+
+test1=# select * from booldemo.tab1 where b='0';
+ a | b 
+---+---
+ 2 | f
+ 4 | f
+(2 строки)
+
+test1=# select * from booldemo.tab1 where b='1';
+ a | b 
+---+---
+ 1 | t
+ 3 | t
+(2 строки)
+
+test1=# select * from booldemo.tab1 where b='t';
+ a | b 
+---+---
+ 1 | t
+ 3 | t
+(2 строки)
+
+test1=# select * from booldemo.tab1 where b='f';
+ a | b 
+---+---
+ 2 | f
+ 4 | f
+(2 строки)
+
+test1=# 
+
